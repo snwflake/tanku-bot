@@ -5,14 +5,14 @@ on:
     branches:
       - master
 
-env:
-  deploy_user: '${{ secrets.DEPLOY_USER }}'
-  BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
-  DB: '${{ secrets.DB }}'
-  GUILD_ID: '${{ secrets.GUILD_ID }}'
-  APP_ID: '${{ secrets.APP_ID }}'
-  CLAN_ID: '${{ secrets.CLAN_ID }}'
-  ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
+# env:
+#   deploy_user: '${{ secrets.DEPLOY_USER }}'
+#   BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
+#   DB: '${{ secrets.DB }}'
+#   GUILD_ID: '${{ secrets.GUILD_ID }}'
+#   APP_ID: '${{ secrets.APP_ID }}'
+#   CLAN_ID: '${{ secrets.CLAN_ID }}'
+#   ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
 
 jobs:
   deploy:
@@ -56,20 +56,19 @@ jobs:
           chmod 600 /home/runner/.ssh/*
           touch /home/runner/.ssh/known_hosts
           echo "${ssh_key}" | tee -- ~/.ssh/deploy_key > /dev/null
-          echo "${known_host}" | tee -- ~/.ssh/known_hosts
+          echo "${known_host}" | tee -- ~/.ssh/known_hosts > /dev/null
           readonly ssh_conf="
-
-          Host remote
+          Host target
             HostName ${remote_host}
             User ${deploy_user}
             IdentityFile ~/.ssh/deploy_key
           "
-          echo "${ssh_conf}" | tee -a -- ~/.ssh/config
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: snwflake
+          echo "${ssh_conf}" | tee -- ~/.ssh/config > /dev/null
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
+      #   with:
+      #     limit-access-to-actor: true
+      #     limit-access-to-users: snwflake
       - name: attempt to compose remote up
         env:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
@@ -80,4 +79,4 @@ jobs:
           CLAN_ID: '${{ secrets.CLAN_ID }}'
           ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
         run: |
-          DOCKER_HOST=ssh://${deploy_user}@remote docker compose down && docker compose up --build -d
+          DOCKER_HOST=ssh://${deploy_user}@target docker compose down && docker compose up --build -d
