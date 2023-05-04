@@ -64,7 +64,6 @@ jobs:
       - name: attempt to compose remote up
         env:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
-          remote_host: '${{ secrets.REMOTE_HOST }}'
           BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
           DB: '${{ secrets.DB }}'
           GUILD_ID: '${{ secrets.GUILD_ID }}'
@@ -72,4 +71,4 @@ jobs:
           CLAN_ID: '${{ secrets.CLAN_ID }}'
           ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
         run: |
-          DOCKER_HOST=ssh://${deploy_user}@${remote_host} docker compose down && docker compose up --build -d
+          DOCKER_HOST=ssh://${deploy_user}@remote docker compose down && docker compose up --build -d
