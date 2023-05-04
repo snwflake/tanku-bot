@@ -2,6 +2,7 @@ import datetime
 
 from peewee import *
 
+
 class User(Model):
     account_id = IntegerField(unique=True)
     nickname = CharField()
