@@ -7,6 +7,13 @@ services:
     ports:
       - 127.0.0.1:8085:8085
     restart: always
+    environment:
+      - __TANKU_BOT_TOKEN=${BOT_TOKEN}
+      - __TANKU_DB=${DB}
+      - __TANKU_GUILD_ID=${GUILD_ID}
+      - __TANKU_APP_ID=${APP_ID}
+      - __TANKU_CLAN_ID=${CLAN_ID}
+      - __TANKU_ALLOWED_ACCOUNT_ID=${ALLOWED_ACCOUNT_ID}
     command: uvicorn app.main:app --proxy-headers --host 0.0.0.0 --port 8085
     volumes:
       - ${PWD}/tanku.db:/tanku-bot/tanku.db
