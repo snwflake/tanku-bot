@@ -34,35 +34,43 @@ jobs:
           sudo touch /etc/wireguard/wg0.conf
           echo "${wg0conf}" | sudo tee -- /etc/wireguard/wg0.conf > /dev/null
           wg-quick up wg0
-      - name: setup ssh on the runner
-        env:
-          ssh_key: '${{ secrets.SSH_KEY }}'
-          known_host: '${{ secrets.KNOWN_HOST }}'
-          deploy_user: '${{ secrets.DEPLOY_USER }}'
-          remote_host: '${{ secrets.REMOTE_HOST }}'
-        run: |
-          mkdir -p /home/runner/.ssh && chmod 700 /home/runner/.ssh
-          touch /home/runner/.ssh/deploy_key
-          touch /home/runner/.ssh/config
-          chmod 600 /home/runner/.ssh/*
-          touch /home/runner/.ssh/known_hosts
-          echo "${ssh_key}" | tee -- ~/.ssh/deploy_key > /dev/null
-          echo "${known_host}" | tee -- ~/.ssh/known_hosts > /dev/null
-          readonly ssh_conf="
-          Host target
-            HostName ${remote_host}
-            User ${deploy_user}
-            IdentityFile ~/.ssh/deploy_key
-          "
-          echo "${ssh_conf}" | tee -- ~/.ssh/config > /dev/null
-      - name: attempt to compose remote up
-        env:
-          deploy_user: '${{ secrets.DEPLOY_USER }}'
-          BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
-          DB: '${{ secrets.DB }}'
-          GUILD_ID: '${{ secrets.GUILD_ID }}'
-          APP_ID: '${{ secrets.APP_ID }}'
-          CLAN_ID: '${{ secrets.CLAN_ID }}'
-          ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
-        run: |
-          DOCKER_HOST=ssh://${deploy_user}@target docker compose down && docker compose up --build -d
+      - name: deploy compose on remote
+        uses: snwflake/docker-compose-remote-action@master
+        with:
+          ssh_host: '${{ secrets.REMOTE_HOST }}'
+          ssh_user: ${{ secrets.DEPLOY_USER }}
+          ssh_private_key: ${{ secrets.SSH_KEY }}
+          ssh_host_public_key: ${{ secrets.KNOWN_HOST }}
+
+      # - name: setup ssh on the runner
+      #   env:
+      #     ssh_key: '${{ secrets.SSH_KEY }}'
+      #     known_host: '${{ secrets.KNOWN_HOST }}'
+      #     deploy_user: '${{ secrets.DEPLOY_USER }}'
+      #     remote_host: '${{ secrets.REMOTE_HOST }}'
+      #   run: |
+      #     mkdir -p /home/runner/.ssh && chmod 700 /home/runner/.ssh
+      #     touch /home/runner/.ssh/deploy_key
+      #     touch /home/runner/.ssh/config
+      #     chmod 600 /home/runner/.ssh/*
+      #     touch /home/runner/.ssh/known_hosts
+      #     echo "${ssh_key}" | tee -- ~/.ssh/deploy_key > /dev/null
+      #     echo "${known_host}" | tee -- ~/.ssh/known_hosts > /dev/null
+      #     readonly ssh_conf="
+      #     Host target
+      #       HostName ${remote_host}
+      #       User ${deploy_user}
+      #       IdentityFile ~/.ssh/deploy_key
+      #     "
+      #     echo "${ssh_conf}" | tee -- ~/.ssh/config > /dev/null
+      # - name: attempt to compose remote up
+      #   env:
+      #     deploy_user: '${{ secrets.DEPLOY_USER }}'
+      #     BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
+      #     DB: '${{ secrets.DB }}'
+      #     GUILD_ID: '${{ secrets.GUILD_ID }}'
+      #     APP_ID: '${{ secrets.APP_ID }}'
+      #     CLAN_ID: '${{ secrets.CLAN_ID }}'
+      #     ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
+      #   run: |
+      #     DOCKER_HOST=ssh://${deploy_user}@target docker compose down && docker compose up --build -d
