@@ -30,7 +30,7 @@ db.bind([User])
 db.create_tables([User])
 db.close()
 
-logger = logging.getLogger('tanku-bot')
+logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 
 handler = logging.StreamHandler()
@@ -122,9 +122,13 @@ async def bonus_code(interaction: discord.Interaction, bonus_code: str, reward: 
 @client.tree.command()
 @app_commands.describe(first_booster="Requires 10 online members", second_booster="Requires 15 online members")
 async def booster(interaction: discord.Interaction, first_booster: Slot1, second_booster: Slot2) -> None:
-    await interaction.response.defer()
     acting_user = get_api_user()
 
+    if not acting_user:
+        await interaction.response.send_message("No available account to activate boosters", ephemeral=True)
+        return
+
+    await interaction.response.defer()
     try:
         online_members = api.get_online_member_count(acting_user)
     except HTTPException as ex:
