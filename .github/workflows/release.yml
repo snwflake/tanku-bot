@@ -5,15 +5,6 @@ on:
     branches:
       - master
 
-# env:
-#   deploy_user: '${{ secrets.DEPLOY_USER }}'
-#   BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
-#   DB: '${{ secrets.DB }}'
-#   GUILD_ID: '${{ secrets.GUILD_ID }}'
-#   APP_ID: '${{ secrets.APP_ID }}'
-#   CLAN_ID: '${{ secrets.CLAN_ID }}'
-#   ALLOWED_ACCOUNT_ID: '${{ secrets.ALLOWED_ACCOUNT_ID }}'
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -64,11 +55,6 @@ jobs:
             IdentityFile ~/.ssh/deploy_key
           "
           echo "${ssh_conf}" | tee -- ~/.ssh/config > /dev/null
-      # - name: Setup upterm session
-      #   uses: lhotari/action-upterm@v1
-      #   with:
-      #     limit-access-to-actor: true
-      #     limit-access-to-users: snwflake
       - name: attempt to compose remote up
         env:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
