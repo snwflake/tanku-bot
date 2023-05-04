@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - tmp
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3.5.2
+      - name: install wireguard
+        run: sudo apt update && sudo apt install -y wireguard iproute2 openresolv curl
+      - name: create wg0
+        env:
+          endpoint: '${{ secrets.WG_ENDPOINT }}'
+          endpoint_public_key: '${{ secrets.WG_ENDPOINT_PUBKEY }}'
+          ips: '${{ secrets.WG_IPS }}'
+          allowed_ips: '${{ secrets.WG_ALLOWED_IPS }}'
+          private_key: '${{ secrets.WG_KEY }}'
+        run: |
+          readonly wg0conf="
+          [Interface]
+          PrivateKey = ${private_key}
+          Address = ${ips}
+
+          [Peer]
+          PublicKey = ${endpoint_public_key}
+          AllowedIPs = ${allowed_ips}
+          Endpoint = ${endpoint}
+          "
+          sudo touch /etc/wireguard/wg0.conf
+          echo "${wg0conf}" | sudo tee -- /etc/wireguard/wg0.conf > /dev/null
+          wg-quick up wg0
+      - name: attempt to compose remote up
+        env:
+          deploy_user: '${{ secrets.DEPLOY_USER }}'
+          remote_host: '${{ secrets.REMOTE_HOST }}'
+        run: |
+          DOCKER_HOST="ssh://${deploy_user}@${remote_host}" docker compose down && docker compose up --build -d
