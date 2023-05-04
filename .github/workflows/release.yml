@@ -34,11 +34,11 @@ jobs:
           sudo touch /etc/wireguard/wg0.conf
           echo "${wg0conf}" | sudo tee -- /etc/wireguard/wg0.conf > /dev/null
           wg-quick up wg0
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: snwflake
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
+      #   with:
+      #     limit-access-to-actor: true
+      #     limit-access-to-users: snwflake
       - name: setup ssh on the runner
         env:
           ssh_key: '${{ secrets.SSH_KEY }}'
@@ -46,8 +46,11 @@ jobs:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
           remote_host: '${{ secrets.REMOTE_HOST }}'
         run: |
-          sudo touch ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          mkdir -p /home/runner/.ssh && chmod 700 /home/runner/.ssh
+          touch /home/runner/.ssh/deploy_key
+          touch /home/runner/.ssh/config
+          chmod 600 /home/runner/.ssh/*
+          touch /home/runner/.ssh/known_hosts
           echo "${ssh_key}" | tee -- ~/.ssh/deploy_key > /dev/null
           echo "${known_host}" | tee -- ~/.ssh/known_hosts
           readonly ssh_conf="
