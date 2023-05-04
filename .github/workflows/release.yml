@@ -34,17 +34,29 @@ jobs:
           sudo touch /etc/wireguard/wg0.conf
           echo "${wg0conf}" | sudo tee -- /etc/wireguard/wg0.conf > /dev/null
           wg-quick up wg0
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-        with:
-          limit-access-to-actor: true
-          limit-access-to-users: snwflake
-      # - name: setup ssh on the runner
-      #   env:
-      #     ssh_key: '${{ secrets.SSH_KEY }}'
-      #     known_host: '${{ secrets.KNOWN_HOST }}'
-      #   run: |
-      #     echo "${known_host}" | tee -- ~/.ssh/known_hosts
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
+      #   with:
+      #     limit-access-to-actor: true
+      #     limit-access-to-users: snwflake
+      - name: setup ssh on the runner
+        env:
+          ssh_key: '${{ secrets.SSH_KEY }}'
+          known_host: '${{ secrets.KNOWN_HOST }}'
+          deploy_user: '${{ secrets.DEPLOY_USER }}'
+          remote_host: '${{ secrets.REMOTE_HOST }}'
+        run: |
+          touch ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          echo "${ssh_key}" | tee -- ~/.ssh/deploy_key > /dev/null
+          echo "${known_host}" | tee -- ~/.ssh/known_hosts
+          readonly ssh_conf="
+
+          Host remote
+            HostName ${remote_host}
+            User ${deploy_user}
+            IdentityFile ~/.ssh/deploy_key
+          "
+          echo "${ssh_conf}" | tee -a -- ~/.ssh/config
       - name: attempt to compose remote up
         env:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
