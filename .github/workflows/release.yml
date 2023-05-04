@@ -34,11 +34,11 @@ jobs:
           sudo touch /etc/wireguard/wg0.conf
           echo "${wg0conf}" | sudo tee -- /etc/wireguard/wg0.conf > /dev/null
           wg-quick up wg0
-      # - name: Setup upterm session
-      #   uses: lhotari/action-upterm@v1
-      #   with:
-      #     limit-access-to-actor: true
-      #     limit-access-to-users: snwflake
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+        with:
+          limit-access-to-actor: true
+          limit-access-to-users: snwflake
       - name: setup ssh on the runner
         env:
           ssh_key: '${{ secrets.SSH_KEY }}'
