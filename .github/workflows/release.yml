@@ -34,9 +34,15 @@ jobs:
           sudo touch /etc/wireguard/wg0.conf
           echo "${wg0conf}" | sudo tee -- /etc/wireguard/wg0.conf > /dev/null
           wg-quick up wg0
-      - uses: webfactory/ssh-agent@v0.7.0
+      - name: setup ssh-agent with deploy key
+        uses: webfactory/ssh-agent@v0.7.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
+      - name: add remote to known_hosts
+        env:
+          entry: '${{ secrets.KNOWN_HOST }}'
+        run: |
+          echo "${entry}" | tee -- ~/.ssh/known_hosts
       - name: attempt to compose remote up
         env:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
