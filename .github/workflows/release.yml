@@ -46,7 +46,8 @@ jobs:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
           remote_host: '${{ secrets.REMOTE_HOST }}'
         run: |
-          touch ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          sudo touch ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
           echo "${ssh_key}" | tee -- ~/.ssh/deploy_key > /dev/null
           echo "${known_host}" | tee -- ~/.ssh/known_hosts
           readonly ssh_conf="
