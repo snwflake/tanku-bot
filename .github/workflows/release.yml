@@ -38,5 +38,10 @@ jobs:
         env:
           deploy_user: '${{ secrets.DEPLOY_USER }}'
           remote_host: '${{ secrets.REMOTE_HOST }}'
+          BOT_TOKEN: '${{ secrets.BOT_TOKEN }}'
+          DB: '${{ secrets.DB }}'
+          GUILD_ID: '${{ secrets.GUILD_ID }}'
+          APP_ID: '${{ secrets.APP_ID }}'
+          CLAN_ID: '${{ secrets.CLAN_ID }}'
         run: |
           DOCKER_HOST="ssh://${deploy_user}@${remote_host}" docker compose down && docker compose up --build -d
