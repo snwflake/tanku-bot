@@ -2,10 +2,9 @@ import asyncio
 import datetime
 import logging
 import logging.handlers
-from os import getenv
+from os import getenv, environ
 from typing import Any
 
-import uvicorn
 import discord
 from peewee import *
 from discord import app_commands
@@ -14,17 +13,17 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
 
-from template import get_html_template
-from exceptions import HTTPException
-from wotapi import WoTAPI
-from enums import Slot1, Slot2
-from user import User
+from .template import get_html_template
+from .exceptions import HTTPException
+from .wotapi import WoTAPI
+from .enums import Slot1, Slot2
+from .user import User
 
 load_dotenv()
 
 app = FastAPI()
-api = WoTAPI(app_id=getenv("__TANKU_APP_ID"), clan_id=getenv("__TANKU_CLAN_ID"))
-db = SqliteDatabase(getenv("__TANKU_DB"))
+api = WoTAPI(app_id=getenv("APP_ID"), clan_id=getenv("CLAN_ID"))
+db = SqliteDatabase(getenv("DB"))
 db.connect(reuse_if_open=True)
 db.bind([User])
 db.create_tables([User])
@@ -42,8 +41,8 @@ formatter = logging.Formatter(
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-TEST_GUILD = discord.Object(id=getenv("__TANKU_GUILD_ID"))
-ACTING_USER = getenv("__TANKU_ALLOWED_ACCOUNT_ID")
+TEST_GUILD = discord.Object(id=getenv("GUILD_ID"))
+ACTING_USER = getenv("ALLOWED_ACCOUNT_ID")
 
 task_run_time = datetime.time(hour=2, minute=30, tzinfo=datetime.timezone.utc)
 
@@ -89,7 +88,7 @@ client = BotClient(intents=intents)
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    asyncio.create_task(client.start(token=getenv("__TANKU_BOT_TOKEN")))
+    asyncio.create_task(client.start(token=getenv("BOT_TOKEN")))
 
 
 @app.get("/auth")
@@ -211,8 +210,3 @@ def get_api_user() -> User | bool:
         return None
     else:
         return user
-
-
-# @DEBUG
-if __name__ == "__main__":
-    uvicorn.run("main:app", port=8085, reload=True)

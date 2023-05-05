@@ -3,8 +3,8 @@ import datetime
 from requests import request, Response, Request
 from fastapi import status
 
-from exceptions import HTTPException
-from user import User
+from .exceptions import HTTPException
+from .user import User
 
 
 """
