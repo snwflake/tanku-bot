@@ -9,7 +9,6 @@ services:
     restart: always
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
-      - DB=${DB}
       - GUILD_ID=${GUILD_ID}
       - APP_ID=${APP_ID}
       - CLAN_ID=${CLAN_ID}

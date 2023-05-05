@@ -2,11 +2,12 @@ import asyncio
 import datetime
 import logging
 import logging.handlers
-from os import getenv, environ
+from os import getenv
 from typing import Any
 
 import discord
 from peewee import *
+from playhouse.db_url import connect
 from discord import app_commands
 from discord.ext import tasks
 from fastapi import FastAPI
@@ -23,8 +24,7 @@ load_dotenv()
 
 app = FastAPI()
 api = WoTAPI(app_id=getenv("APP_ID"), clan_id=getenv("CLAN_ID"))
-db = SqliteDatabase(getenv("DB"))
-db.connect(reuse_if_open=True)
+db = connect("sqlite:////tanku-bot/db/tanku.db")
 db.bind([User])
 db.create_tables([User])
 db.close()
