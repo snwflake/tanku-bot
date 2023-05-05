@@ -15,7 +15,7 @@ services:
       - ALLOWED_ACCOUNT_ID=${ALLOWED_ACCOUNT_ID}
     command: uvicorn app.main:app --proxy-headers --host 0.0.0.0 --port 8085
     volumes:
-      - tanku-bot:/tanku-bot/tanku.db
+      - tanku-bot:/tanku-bot/db
 volumes:
   tanku-bot:
     external: true
