@@ -62,7 +62,9 @@ class WoTAPI:
 
         try:
             resp = self._call(method="GET", endpoint=endpoint, params=params)
-        except HTTPException:
+            print(f'try: {resp["data"]}')
+        except HTTPException as ex:
+            print(ex)
             return False
         else:
             return True if resp["data"][str(account_id)]["nickname"] == nickname else False
