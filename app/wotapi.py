@@ -1,11 +1,14 @@
 import datetime
 
-from requests import request, Response, Request
 from fastapi import status
+from requests import (
+    Request,
+    Response,
+    request,
+)
 
 from .exceptions import HTTPException
 from .user import User
-
 
 """
 # @TODO
@@ -49,9 +52,7 @@ class WoTAPI:
         else:
             return resp.json()
 
-    def verify_user_token(
-        self, access_token: str, nickname: str, account_id: int
-    ) -> bool:
+    def verify_user_token(self, access_token: str, nickname: str, account_id: int) -> bool:
         endpoint = "account/info/"
         params = {
             "account_id": account_id,
@@ -64,9 +65,7 @@ class WoTAPI:
         except HTTPException:
             return False
         else:
-            return (
-                True if resp["data"][str(account_id)]["nickname"] == nickname else False
-            )
+            return True if resp["data"][str(account_id)]["nickname"] == nickname else False
 
     def extend_access_token(self, user: User) -> dict | HTTPException:
         endpoint = "auth/prolongate/"
@@ -98,9 +97,7 @@ class WoTAPI:
     def get_clan_booster_status(self, user: User) -> dict | HTTPException:
         raise NotImplementedError
 
-    def activate_clan_booster(
-        self, user: User, *boosters: str | None
-    ) -> bool | HTTPException:
+    def activate_clan_booster(self, user: User, *boosters: str | None) -> bool | HTTPException:
         endpoint = "stronghold/activateclanreserve/"
         data = {"access_token": user.access_token, "reserve_level": 10}
 

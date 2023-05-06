@@ -6,19 +6,22 @@ from os import getenv
 from typing import Any
 
 import discord
-from peewee import *
-from playhouse.db_url import connect
 from discord import app_commands
 from discord.ext import tasks
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from dotenv import load_dotenv
+from peewee import *
+from playhouse.db_url import connect
 
-from .template import get_html_template
+from .enums import (
+    Slot1,
+    Slot2,
+)
 from .exceptions import HTTPException
-from .wotapi import WoTAPI
-from .enums import Slot1, Slot2
+from .template import get_html_template
 from .user import User
+from .wotapi import WoTAPI
 
 load_dotenv()
 
@@ -35,9 +38,7 @@ logger.setLevel(logging.INFO)
 handler = logging.StreamHandler()
 handler.setLevel(logging.INFO)
 
-formatter = logging.Formatter(
-    "[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{"
-)
+formatter = logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", "%Y-%m-%d %H:%M:%S", style="{")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -72,9 +73,9 @@ class BotClient(discord.Client):
             # @TODO
             # error handling
             """
-            query = User.update(
-                access_token=resp["access_token"], updated_at=datetime.datetime.now()
-            ).where(User.account_id == acting_user.account_id)
+            query = User.update(access_token=resp["access_token"], updated_at=datetime.datetime.now()).where(
+                User.account_id == acting_user.account_id
+            )
             query.execute()
 
     @extend_token_task.before_loop
@@ -99,9 +100,7 @@ async def auth(
     account_id: int = 0,
     expires_at: float = 0,
 ) -> Any:
-    if status != "ok" or (
-        "" in [status, access_token, nickname, expires_at] or account_id == 0
-    ):
+    if status != "ok" or ("" in [status, access_token, nickname, expires_at] or account_id == 0):
         return get_html_response(success=False)
 
     if not api.verify_user_token(access_token, nickname, account_id):
@@ -131,9 +130,7 @@ async def on_ready() -> None:
 
 @client.tree.command()
 @app_commands.describe(bonus_code="The bonus code", reward="The rewards or None")
-async def bonus_code(
-    interaction: discord.Interaction, bonus_code: str, reward: str = None
-) -> None:
+async def bonus_code(interaction: discord.Interaction, bonus_code: str, reward: str = None) -> None:
     await interaction.response.send_message(
         f'<https://eu.wargaming.net/shop/redeem/?bonus_mode={bonus_code}>\n{reward or "no reward specified"}'
     )
@@ -144,15 +141,11 @@ async def bonus_code(
     first_booster="Requires 10 online members",
     second_booster="Requires 15 online members",
 )
-async def booster(
-    interaction: discord.Interaction, first_booster: Slot1, second_booster: Slot2
-) -> None:
+async def booster(interaction: discord.Interaction, first_booster: Slot1, second_booster: Slot2) -> None:
     acting_user = get_api_user()
 
     if not acting_user:
-        await interaction.response.send_message(
-            "No available account to activate boosters", ephemeral=True
-        )
+        await interaction.response.send_message("No available account to activate boosters", ephemeral=True)
         return
 
     await interaction.response.defer()
@@ -174,9 +167,7 @@ async def booster(
             await interaction.followup.send("Booster activated!")
     else:
         try:
-            api.activate_clan_booster(
-                acting_user, first_booster.value, second_booster.value
-            )
+            api.activate_clan_booster(acting_user, first_booster.value, second_booster.value)
         except HTTPException as ex:
             print(ex)
             await interaction.followup.send("Something went wrong, ping snwflake")
@@ -192,9 +183,7 @@ async def test(interaction: discord.Interaction) -> None:
     try:
         online_members = api.get_online_member_count(acting_user)
     except HTTPException:
-        await interaction.followup.send(
-            "Something went wrong, ping snwflake", ephemeral=True
-        )
+        await interaction.followup.send("Something went wrong, ping snwflake", ephemeral=True)
     else:
         await interaction.followup.send(online_members, ephemeral=True)
 
