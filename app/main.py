@@ -104,10 +104,12 @@ async def auth(
         return get_html_response(success=False)
 
     if not api.verify_user_token(access_token, nickname, account_id):
+        print("token verification failed")
         return get_html_response(success=False)
 
     try:
         with db.atomic():
+            print("attempting to create user")
             user = User.create(
                 account_id=account_id,
                 nickname=nickname,
@@ -116,10 +118,13 @@ async def auth(
                 updated_at=datetime.datetime.now(),
             )
             if user:
+                print("user created successfully")
                 return get_html_response(success=True)
             else:
+                print("user creation failed")
                 return get_html_response(success=False)
-    except IntegrityError:
+    except IntegrityError as ex:
+        print(ex)
         return get_html_response(success=False)
 
 
