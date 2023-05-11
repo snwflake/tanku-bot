@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import logging
 import logging.handlers
-from os import getenv
+import os
 from typing import Any
 
 import discord
@@ -26,8 +26,8 @@ from .wotapi import WoTAPI
 load_dotenv()
 
 app = FastAPI()
-api = WoTAPI(app_id=getenv("APP_ID"), clan_id=getenv("CLAN_ID"))
-db = connect("sqlite:////tanku-bot/db/tanku.db")
+api = WoTAPI(app_id=os.getenv("APP_ID"), clan_id=os.getenv("CLAN_ID"))
+db = connect(f"sqlite:///{os.path.abspath(os.path.join(__file__,  '..', '..', 'db', 'tanku.db'))}")
 db.bind([User])
 db.create_tables([User])
 db.close()
@@ -42,8 +42,8 @@ formatter = logging.Formatter("[{asctime}] [{levelname:<8}] {name}: {message}", 
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-TEST_GUILD = discord.Object(id=getenv("GUILD_ID"))
-ACTING_USER = getenv("ALLOWED_ACCOUNT_ID")
+TEST_GUILD = discord.Object(id=os.getenv("GUILD_ID"))
+ACTING_USER = os.getenv("ALLOWED_ACCOUNT_ID")
 
 task_run_time = datetime.time(hour=2, minute=30, tzinfo=datetime.timezone.utc)
 
@@ -89,7 +89,7 @@ client = BotClient(intents=intents)
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    asyncio.create_task(client.start(token=getenv("BOT_TOKEN")))
+    asyncio.create_task(client.start(token=os.getenv("BOT_TOKEN")))
 
 
 @app.get("/auth")
