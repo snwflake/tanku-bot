@@ -99,7 +99,7 @@ class WoTAPI:
     def get_clan_booster_status(self, user: User) -> None:
         raise NotImplementedError
 
-    def activate_clan_booster(self, user: User, *boosters: str | None) -> bool:
+    def activate_clan_booster(self, user: User, *boosters: str | None) -> None:
         endpoint = "stronghold/activateclanreserve/"
         data = {"access_token": user.access_token, "reserve_level": 10}
 
@@ -112,4 +112,4 @@ class WoTAPI:
                 except HTTPException:
                     raise
                 else:
-                    return True
+                    continue
