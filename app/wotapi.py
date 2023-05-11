@@ -31,7 +31,7 @@ class WoTAPI:
         endpoint: str,
         params: dict | None = {},
         data: dict | None = {},
-    ) -> dict | HTTPException:
+    ) -> dict:
         print(f"{datetime.datetime.now()}: {method} {endpoint} called")
         resp = request(
             method,
@@ -42,7 +42,7 @@ class WoTAPI:
         )
         return self._validate_response(resp)
 
-    def _validate_response(self, resp: Response) -> dict | HTTPException:
+    def _validate_response(self, resp: Response) -> dict:
         if not resp.ok or resp.json()["status"] == "error":
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
@@ -69,7 +69,7 @@ class WoTAPI:
         else:
             return True if resp["data"][str(account_id)]["nickname"] == nickname else False
 
-    def extend_access_token(self, user: User) -> dict | HTTPException:
+    def extend_access_token(self, user: User) -> dict:
         endpoint = "auth/prolongate/"
         data = {"access_token": user.access_token, "expires_at": 1209500}
 
@@ -80,7 +80,7 @@ class WoTAPI:
         else:
             return resp["data"]
 
-    def get_online_member_count(self, user: User) -> int | HTTPException:
+    def get_online_member_count(self, user: User) -> int:
         endpoint = "clans/info/"
         params = {
             "clan_id": self.clanID,
@@ -96,10 +96,10 @@ class WoTAPI:
         else:
             return len(resp["data"][str(self.clanID)]["private"]["online_members"])
 
-    def get_clan_booster_status(self, user: User) -> dict | HTTPException:
+    def get_clan_booster_status(self, user: User) -> None:
         raise NotImplementedError
 
-    def activate_clan_booster(self, user: User, *boosters: str | None) -> bool | HTTPException:
+    def activate_clan_booster(self, user: User, *boosters: str | None) -> bool:
         endpoint = "stronghold/activateclanreserve/"
         data = {"access_token": user.access_token, "reserve_level": 10}
 

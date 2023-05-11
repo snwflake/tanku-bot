@@ -197,7 +197,7 @@ def get_html_response(success: bool = False) -> HTMLResponse:
     return HTMLResponse(content=get_html_template(success), status_code=200)
 
 
-def get_api_user() -> User | bool:
+def get_api_user() -> User | None:
     try:
         user = User.get(User.account_id == ACTING_USER) or None
     except User.DoesNotExist:
